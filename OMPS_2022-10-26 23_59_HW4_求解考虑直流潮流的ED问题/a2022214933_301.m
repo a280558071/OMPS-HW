@@ -1,0 +1,29 @@
+function[g,z]=Gurobi_ED
+ clc;
+    clear;
+    yalmip('clear');
+g=sdpvar(2,1);
+P=[2,0;0,2];
+q=[40;50];
+B=[40;120];
+A=[1,2;4,3];
+I=[1;1;2;3;4];
+J=[2;3;3;4;2];
+G=digraph(I,J);
+IN=incidence(G); 
+p=sdpvar(5,1);
+theta=sdpvar(4,1);
+d=[0,0,10,20]';
+X=[0.01,0.01,0.01,0.02,0.01]';
+cons1=[A*g<=B,g>=0,IN*p==[g;0;0]-d,IN'*theta==p.*X,-20<=p<=20];
+z=(1/2)*g'*P*g+q'*g;
+ops=sdpsettings('solver','gurobi','showprogress',1);
+optimize(cons1,z,ops);
+s_g=value(g)
+s_z=value(z)
+s_p=value(p)
+s_theta=value(theta)
+eLabels={' -8.1818',' -11.8182','-3.6364','-5.4545','14.5455'};
+nLabels={'20','10','10','20'};
+plot(G,'Layout','force','EdgeLabel',eLabels,'NodeLabel',nLabels)
+end

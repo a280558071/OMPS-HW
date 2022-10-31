@@ -1,0 +1,21 @@
+clear;
+clc;
+close all;
+x=sdpvar(2,1);
+P=[4,0;0,6];
+q=[40;50];
+z=(1/2)*x'*P*x+q'*x;
+A=[1,2;4,3;1,1;-1,-1];
+b=[-40;-120;-30;30];
+c=[0;0;0;0];
+F=A*x+b;
+Cons=[F<=c,x>=0];
+ops=sdpsettings('solver','gurobi');
+sol=optimize(Cons,z,ops); 
+s_x=value(x),s_z=value(z)
+u=dual(Cons)
+gz=value(jacobian(z,x)')%目标函数在最优值点的梯度
+gF1=value(jacobian(F(1),x)')%各约束在最优值点的梯度
+gF2=value(jacobian(F(2),x)')
+gF3=value(jacobian(F(3),x)')
+gF4=value(jacobian(F(4),x)')

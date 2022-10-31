@@ -1,0 +1,23 @@
+function[x,p]=Gurobi_ED
+ clc;
+    clear;
+    yalmip('clear');
+x=sdpvar(2,1);
+P=[4,0;0,6];
+q=[40;50];
+B=[40;120;30;-30];
+A=[1,2;4,3;1,1;-1,-1];
+cons1=[A*x<=B,x>=0];
+p=(1/2)*x'*P*x+q'*x;
+ops=sdpsettings('solver','gurobi','showprogress',1);
+optimize(cons1,p,ops);
+value(x)
+value(p)
+syms x1 x2
+grad_f0=gradient(2*x1^2+40*x1+3*x2^2+50*x2);
+grad_f1=gradient(x1+2*x2-40);
+grad_f2=gradient(4*x1+3*x2-120);
+grad_h=gradient(x1+x2-30);
+r=[subs(grad_f0,[x1,x2],[20,10]),subs(grad_f1,[x1,x2],[20,10]),subs(grad_f2,[x1,x2],[20,10]),subs(grad_h,[x1,x2],[20,10])];
+disp(r');
+end

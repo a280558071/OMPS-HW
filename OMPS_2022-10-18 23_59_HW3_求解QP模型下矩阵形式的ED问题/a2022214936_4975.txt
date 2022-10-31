@@ -1,0 +1,45 @@
+clear;
+clc;
+close all;
+x = sdpvar( 2,1 );
+P = [4 0;
+     0 6];
+q = [40;50];
+r = 0;
+G = [1 2;
+     4 3];
+h = [40;120];
+A = [1 1];
+b = 30;
+fi = G*x-h;
+hi = A*x-b;
+C = [fi <=0;hi == 0;x >= 0];
+ops = sdpsettings('verbose',0,'solver','gurobi');
+z = 0.5*x'*P*x + q'*x + r;
+reuslt = optimize( C,z,ops );
+if reuslt.problem == 0 
+    a = value(x)
+    dual_G = dual(C(1))
+    dual_h = dual(C(2))
+    value(z)
+    x = 0:0.1:20;
+    y = x';
+    z = 2*x.^2 + 40*x + 3*y.^2 + 50*y;
+    f1 = x + 2*y - 40;
+    f2 = 4*x + 3*y -120;
+    h1 = x + y - 30;
+    [zx,zy] = gradient(z,0.1);
+    [f1x,f1y] = gradient(f1,0.1);
+    [f2x,f2y] = gradient(f2,0.1);
+    [h1x,h1y] = gradient(h1,0.1);
+    x0 = 20;
+    y0 = 10;
+    t = (x == x0) & (y == y0);
+    indt = find(t);
+    z_grad  = [zx(indt) zy(indt)]
+    f1_grad = [f1x(indt) f1y(indt)]
+    f2_grad = [f2x(indt) f2y(indt)]
+    h1_grad = [h1x(indt) h1y(indt)]
+else
+    disp('Something is error');
+end

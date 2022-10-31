@@ -1,0 +1,31 @@
+clear;
+clc;
+close all;
+A=[1,2;4,3];
+b=[40;120];
+P=[2,0;0,2];
+q=[40;50];
+s=[1,2,3,4,1];
+t=[2,3,4,2,3];
+d=[0;0;10;20];
+X=[0.01,0.01,0.01,0.02,0.01]';
+g_i=sdpvar(2,1);
+p_ij=sdpvar(5,1);
+theta=sdpvar(4,1);
+Graph=digraph(s,t)
+In=incidence(Graph);  % 节支关联矩阵，node-branch incidence matrix
+In=-In;
+Cons=[];
+Cons=[Cons,A*g_i<=b,g_i>=0];
+G_i=[g_i;0;0];
+Cons=[Cons,In*p_ij==G_i-d,In'*theta==p_ij.*X,theta(1)==0];
+Cons=[Cons,p_ij<=20];
+Obj=1/2*g_i'*P*g_i+q'*g_i;
+ops=sdpsettings('solver','gurobi');
+sol=optimize(Cons,Obj,ops)
+s_g=value(g_i);
+s_p_ij=value(p_ij);
+s_theta=value(theta);
+s_Obj=value(Obj);
+s_G_i=value(G_i);
+plot(Graph)
